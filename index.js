@@ -13,7 +13,7 @@ mongoose.connect(
     if (err) {
       throw err;
     } else {
-      console.log("La conexion con la base de datos es correcta");
+      console.log("Conexion correcta");
 
       app.listen(port, () => {
         console.log("------API REST-------");

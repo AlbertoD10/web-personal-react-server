@@ -21,7 +21,7 @@ exports.createAccessToken = function (user) {
 //Reinicia el accessToken siempre y cuando este activo
 exports.createRefreshToken = function (user) {
   const payload = {
-    user: user._id,
+    id: user._id,
     exp: moment().add(30, "days").unix(),
   };
 
@@ -33,3 +33,5 @@ exports.createRefreshToken = function (user) {
 exports.decodedToken = function (token) {
   return jwt.decode(token, SECRET_KEY, true);
 };
+
+module.exports = { SECRET_KEY };

@@ -13,7 +13,7 @@ function signUp(req, res) {
   // user.lastname = lastname;
   user.email = email.toLowerCase();
   user.role = "admin";
-  user.active = false;
+  user.active = true;
 
   //Hago la validacion de que ingresa contraseñas
   if (!password || !repeatPassword) {
@@ -80,7 +80,7 @@ function signIn(req, res) {
             } else {
               //Si está activado, envio los datos seguros por el token
               res.status(200).send({
-                accesToken: jwt.createAccessToken(userStored),
+                accessToken: jwt.createAccessToken(userStored),
                 refreshToken: jwt.createRefreshToken(userStored),
               });
             }
@@ -91,4 +91,14 @@ function signIn(req, res) {
   });
 }
 
-module.exports = { signUp, signIn };
+function getUsers(req, res) {
+  User.find().then((users) => {
+    if (!users) {
+      res.status(200).send({ message: "No se ha encontrado ningún usuario" });
+    } else {
+      res.status(200).send({ users });
+    }
+  });
+}
+
+module.exports = { signUp, signIn, getUsers };
