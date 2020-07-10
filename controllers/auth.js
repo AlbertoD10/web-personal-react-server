@@ -1,7 +1,6 @@
 const jwt = require("../services/jwt");
 const User = require("../models/user");
 const moment = require("moment");
-const user = require("../models/user");
 
 //Verifico del lado del servidor si el token expiro
 function willExpireToken(token) {

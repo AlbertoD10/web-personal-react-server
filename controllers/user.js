@@ -13,7 +13,7 @@ function signUp(req, res) {
   // user.lastname = lastname;
   user.email = email.toLowerCase();
   user.role = "admin";
-  user.active = true;
+  user.active = false;
 
   //Hago la validacion de que ingresa contraseñas
   if (!password || !repeatPassword) {
@@ -51,7 +51,6 @@ function signUp(req, res) {
 
 //Control de inicio de sesion
 function signIn(req, res) {
-  console.log("Login correcto");
   const params = req.body; //Parametros que recibo del login
   const email = params.email.toLowerCase(); //formateo la entrada a minuscula
   const password = params.password; //Pass que me llega del login.
@@ -91,6 +90,7 @@ function signIn(req, res) {
   });
 }
 
+//Para obtener todos los usuarios
 function getUsers(req, res) {
   User.find().then((users) => {
     if (!users) {
@@ -101,4 +101,17 @@ function getUsers(req, res) {
   });
 }
 
-module.exports = { signUp, signIn, getUsers };
+//Obtengo solo los usuarios activos
+function getUsersActive(req, res) {
+  const query = req.query; //Obtiene el string de la ruta
+  //Voy a buscar al usuario solo si esta activo
+  User.find({ active: query.active }).then((users) => {
+    if (!users) {
+      res.status(200).send({ message: "No hay usuarios inactivos" });
+    } else {
+      res.status(200).send({ users });
+    }
+  });
+}
+
+module.exports = { signUp, signIn, getUsers, getUsersActive };

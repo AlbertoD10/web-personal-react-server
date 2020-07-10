@@ -29,9 +29,8 @@ exports.createRefreshToken = function (user) {
 };
 
 //Decodificador del token
-
 exports.decodedToken = function (token) {
   return jwt.decode(token, SECRET_KEY, true);
 };
 
-module.exports = { SECRET_KEY };
+// module.exports = { SECRET_KEY };

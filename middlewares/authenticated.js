@@ -1,16 +1,17 @@
 const moment = require("moment");
 const jwt = require("jwt-simple");
-const { SECRET_KEY } = require("../services/jwt");
+// const { SECRET_KEY } = require("../services/jwt");
 
 //Middleware para que solo usuarios logueados y con token validos puedan estar dentro.
 
 exports.ensureAuth = (req, res, next) => {
+  const SECRET_KEY = "contraPrueba";
   if (!req.headers.authorization) {
     res
       .status(403)
       .send({ message: "La petición no tiene cabecera de autentificación" });
   }
-  //Solo quiero obtener el token del header, por eso hago lo reemplazo asi
+  //Solo quiero obtener el token del header, por eso lo reemplazo asi
   const token = req.headers.authorization.replace(/['"]+/g, "");
 
   //Obtenido el token, procedo a decodificarlo
