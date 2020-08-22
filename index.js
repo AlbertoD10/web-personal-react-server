@@ -6,6 +6,7 @@ const { API_VERSION, IP_SERVER, PORT_DB } = require("./config");
 
 //Creo la BD dentro de mongodb
 mongoose.set("useCreateIndex", true);
+mongoose.set("useFindAndModify", false);
 mongoose.connect(
   `mongodb://${IP_SERVER}:${PORT_DB}/mydatabase`, //Puerto donde corre la DB
   { useNewUrlParser: true, useUnifiedTopology: true },
