@@ -159,7 +159,8 @@ function uploadAvatar(req, res) {
                       .status(404)
                       .send({ message: "No se ha encontrado ningun usuario" });
                   } else {
-                    res.status(200).send({ user: userResult });
+                    res.status(200).send({ user });
+                    console.log("APIUPLOAD", user);
                   }
                 }
               }
@@ -174,30 +175,59 @@ function uploadAvatar(req, res) {
 //EndPoint para obtener el avatar
 function getAvatar(req, res) {
   const avatarName = req.params.avatarName;
-  const filePath = "./uploads/avatar/" + avatarName;
+  let filePath = "./uploads/avatar/" + avatarName;
 
   //Verifico si la ruta existe
-  fs.stat(filePath, (err, exists) => {
+
+  fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
-      res.status(500).send({ message: "Ha ocurrido un error" });
+      res.status(404).send({ message: "Imagen no encontrada" });
     } else {
-      if (!exists) {
-        res.status(404).send({ message: "Imagen no encontrada." });
-      } else {
-        res.sendFile(path.resolve(filePath));
-      }
+      res.sendFile(path.resolve(filePath));
     }
+    // console.log(`${filePath} ${err ? "does not exist" : "exists"}`);
+    // User.update({ avatar: avatarName }, { $unset: { avatar: "" } });
+    // console.log(User.update);
   });
+
+  // fs.stat(filePath, (err, exists) => {
+  //   fs.access(filePath, fs.constants.F_OK, (err) => {
+  //     console.log(`${filePath} ${err ? "does not exist" : "exists"}`);
+  //     User.update({ avatar: avatarName }, { $unset: { avatar: "" } });
+  //     console.log(User.update);
+  //   });
+
+  //   if (err) {
+  //     res.status(500).send({ message: "Ha ocurrido un error" });
+  //   } else {
+  //     if (!exists) {
+  //       res.status(404).send({ message: "Imagen no encontrada." });
+  //     } else {
+  //       res.sendFile(path.resolve(filePath));
+  //     }
+  //   }
+  // });
 }
 
-function updateUser(req, res) {
-  const userData = req.body;
+async function updateUser(req, res) {
+  let userData = req.body;
+  userData.email = req.body.email.toLowerCase();
   const params = req.params;
 
+  if (userData.password) {
+    await bcrypt
+      .hash(userData.password, saltRounds)
+      .then((hash) => {
+        userData.password = hash;
+      })
+      .catch(() => {
+        res.status(500).send({ message: "Error de encriptación" });
+      });
+  }
+
   User.findByIdAndUpdate({ _id: params.id }, userData, (err, userUpdate) => {
-    console.log(userData);
     if (err) {
-      res.status(500).send({ message: "Ha ocurrido un error en el servidor" });
+      res.status(500).send({ message: "Ha ocurrido un error en el servidor." });
     } else {
       if (!userUpdate) {
         res.status(404).send({ message: "Usuario no encontrado." });
@@ -208,6 +238,26 @@ function updateUser(req, res) {
   });
 }
 
+function activateUser(req, res) {
+  const { id } = req.params;
+  const { active } = req.body;
+
+  User.findByIdAndUpdate(id, { active }, (err, userStored) => {
+    if (err) {
+      res.status(500).send({ message: "Error en el servidor" });
+    } else {
+      if (!userStored) {
+        res.status(404).send({ message: "No se encontro el usuario" });
+      } else {
+        if (active === true) {
+          res.status(200).send({ message: "Usuario activado" });
+        } else {
+          res.status(200).send({ message: "Usuario desactivado" });
+        }
+      }
+    }
+  });
+}
 module.exports = {
   signUp,
   signIn,
@@ -216,4 +266,5 @@ module.exports = {
   uploadAvatar,
   getAvatar,
   updateUser,
+  activateUser,
 };
