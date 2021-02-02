@@ -258,6 +258,70 @@ function activateUser(req, res) {
     }
   });
 }
+
+function deleteUser(req, res) {
+  const { id } = req.params;
+
+  User.findByIdAndRemove(id, (err, userDeleted) => {
+    if (err) {
+      res.status(500).send({ message: "Ha ocurrido un error en el servidor" });
+    } else {
+      if (!userDeleted) {
+        res.status(404).send({ message: "Usuario no encontrado" });
+      } else {
+        res.status(200).send({ message: "Usuario eliminado" });
+      }
+    }
+  });
+}
+
+function signUpAdmin(req, res) {
+  const user = new User();
+  const { name, lastname, email, password, repeatPassword, role } = req.body;
+  //Hago las asignaciones de lo que recibo a mi nueva instancia.
+  user.name = name;
+  user.lastname = lastname;
+  user.email = email.toLowerCase();
+  user.role = role;
+  user.active = true;
+
+  //Hago la validacion de que ingresa contraseñas
+  if (!password || !repeatPassword) {
+    res.status(404).send({ message: "La contraseña es obligatoria" });
+  } else if (password !== repeatPassword) {
+    res.status(404).send({ message: "Las contraseñas no coinciden" });
+  } else {
+    //Si son correctas, las encripto
+    bcrypt.hash(password, saltRounds, function (err, hash) {
+      if (err) {
+        res.status(500).send({ message: "Error al encriptar la contraseña" });
+      } else {
+        //Si no hay errores, asigno la contraseña al modelo
+        user.password = hash; //hash es la contraseña encriptada
+
+        // Con esto guardo el usuario; userStored es el objeto donde se guardara el user.save
+        user.save((err, userStored) => {
+          if (err) {
+            //Aqui puede ser un error del servidor
+            res.status(500).send({ message: "Este correo ya existe" });
+          } else {
+            //Si userStored esta vacio, no se creo bien
+            if (!userStored) {
+              res.status(404).send({ message: "Error al crear el usuario" });
+            } else {
+              //Si no hay errores, muestro el objeto y continuo.
+              res.status(200).send({
+                message: "Usuario creado correctamente.",
+                status: 200,
+              });
+            }
+          }
+        });
+      }
+    });
+  }
+}
+
 module.exports = {
   signUp,
   signIn,
@@ -267,4 +331,6 @@ module.exports = {
   getAvatar,
   updateUser,
   activateUser,
+  deleteUser,
+  signUpAdmin,
 };
