@@ -8,6 +8,7 @@ const { API_VERSION } = require("./config");
 const userRoutes = require("./routers/user");
 const authRoutes = require("./routers/auth");
 const menuRoutes = require("./routers/menu");
+const newsLetterRoutes = require("./routers/newsLetter");
 //... ahora lo cargamos..
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -25,12 +26,11 @@ app.use((req, res, next) => {
   next();
 });
 
-//.. lo haremos mas adelante
-
 //Router basic
 app.use(`/api/${API_VERSION}`, authRoutes);
 app.use(`/api/${API_VERSION}`, userRoutes); //Utiliza todas las rutas definidas en userRouter
 app.use(`/api/${API_VERSION}`, menuRoutes);
+app.use(`/api/${API_VERSION}`, newsLetterRoutes);
 //adelante
 
 module.exports = app;
